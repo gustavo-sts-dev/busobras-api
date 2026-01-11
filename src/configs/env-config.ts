@@ -2,7 +2,7 @@ import { loadEnvFile, env } from "node:process";
 import z from "zod";
 
 // Comentar antes de ir para produção
-loadEnvFile();
+env.NODE_ENV != "production" ? loadEnvFile() : null;
 
 export default z
   .object({

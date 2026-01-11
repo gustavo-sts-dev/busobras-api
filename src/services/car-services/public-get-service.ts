@@ -6,16 +6,16 @@ export async function publicGetCarService(data: {id: string}) {
 
   const car = await Car.findById(id).lean();
 
-  if (!car) throw new Error("Carro não encontrado");
+  if (car) {
+    const advertiserData = await User.findById(car.advertiser)
+      .select("username")
+      .lean();
 
-  const advertiserData = await User.findById(car.advertiser).select("username").lean();
-
-  if (!advertiserData) throw new Error("Anunciante não encontrado");
-
-  const { advertiser, ...carData } = car;
-
-  return {
-    car: carData,
-    advertiserName: advertiserData.username
-  };
+    const { advertiser, ...carData } = car;
+      
+    return {
+      car: carData,
+      advertiserName: advertiserData?.username,
+    };
+  }
 }

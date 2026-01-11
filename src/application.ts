@@ -1,4 +1,4 @@
-import Fastify from "fastify";
+import Fastify, { FastifyError, FastifyReply, FastifyRequest } from "fastify";
 
 import {
   validatorCompiler,
@@ -7,7 +7,7 @@ import {
   jsonSchemaTransform,
 } from "fastify-type-provider-zod";
 
-const fastify = Fastify({logger: true}).withTypeProvider<ZodTypeProvider>();
+const fastify = Fastify({ logger: true }).withTypeProvider<ZodTypeProvider>();
 
 fastify.setValidatorCompiler(validatorCompiler);
 fastify.setSerializerCompiler(serializerCompiler);
@@ -20,7 +20,7 @@ import swaggerUi from "@fastify/swagger-ui";
 import cookie from "@fastify/cookie";
 
 fastify.register(cors, {
-  origin: env_vars.ORIGINS.split(","),
+  origin: "*",
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   allowedHeaders: ["Content-Type"],
@@ -31,8 +31,8 @@ fastify.register(helmet);
 
 fastify.register(cookie, {
   secret: env_vars.COOKIE_SECRET,
-  parseOptions: {}
-})
+  parseOptions: {},
+});
 
 if (env_vars.NODE_ENV === "development") {
   fastify.register(swagger, {
@@ -54,7 +54,7 @@ if (env_vars.NODE_ENV === "development") {
         description: "Find more info here",
       },
     },
-    transform: jsonSchemaTransform
+    transform: jsonSchemaTransform,
   });
 
   fastify.register(swaggerUi, {
@@ -77,7 +77,7 @@ if (env_vars.NODE_ENV === "development") {
       return swaggerObject;
     },
     transformSpecificationClone: true,
-  })
+  });
 }
 
 import { connectDatabase } from "./database/mongodb";
@@ -85,6 +85,27 @@ fastify.register(connectDatabase);
 
 import routes from "./routes/index-routes";
 
-fastify.register(routes)
+fastify.setErrorHandler(
+  (error: FastifyError, request: FastifyRequest, reply: FastifyReply) => {
+    if (error.validation) {
+      return reply.status(400).send({
+        message: "Erro de validação",
+        details: error.validation,
+      });
+    }
+
+    if (error.statusCode) {
+      reply.status(error.statusCode).send(error.message);
+    }
+  }
+);
+
+fastify.register(routes);
+
+fastify.get("/health", (req, rep) => {
+  rep.status(200).send({
+    status: "Ok!"
+  })
+})
 
 export default fastify;
