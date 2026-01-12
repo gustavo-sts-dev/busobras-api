@@ -14,7 +14,7 @@ export async function loginController(req: FastifyRequest, rep: FastifyReply) {
       signed: true,
       sameSite: "strict",
       path: "/",
-      maxAge: 60 * 60 * 24,
+      maxAge: 60 * 15,
     });
 
     rep.status(200).send({

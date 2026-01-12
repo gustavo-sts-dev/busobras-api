@@ -16,7 +16,7 @@ export async function registerController(req: FastifyRequest, rep: FastifyReply)
       path: "/",
       sameSite: "strict",
       signed: true,
-      maxAge: 60 * 60 * 24,
+      maxAge: 60 * 15,
     });
 
     rep.status(201).send({
