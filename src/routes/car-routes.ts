@@ -2,11 +2,11 @@ import { authorization } from "@src/middlewares/authorization-middleware";
 import {
   privateCreateCarController,
   publicGetCarController,
+  privateUpdateCarController,
 } from "@src/controllers/index-controllers";
 import { FastifyInstance } from "fastify";
 import { ZodTypeProvider } from "fastify-type-provider-zod";
 import z from "zod";
-import { privateUpdateCarController } from "@src/controllers/car-controllers/private-update-controller";
 
 const CarBody = z.object({
   brand: z.string(),

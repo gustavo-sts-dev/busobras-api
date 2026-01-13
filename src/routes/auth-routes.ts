@@ -1,7 +1,8 @@
-import * as authControllers from "@src/controllers/index-controllers"
+import * as authControllers from "@src/controllers/index-controllers";
+import rateLimit from "@fastify/rate-limit"
 import z from "zod";
 
-export default function authRoutes(fastify) {
+export default async function authRoutes(fastify) {
   fastify.post(
     "/register",
     {
@@ -19,6 +20,11 @@ export default function authRoutes(fastify) {
     },
     authControllers.registerController
   );
+
+  await fastify.register(rateLimit, {
+    max: 1,
+    timeWindow: "1 minute",
+  });
   
   fastify.post("/login", {
       schema: {

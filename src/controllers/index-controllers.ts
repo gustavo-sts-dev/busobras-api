@@ -6,3 +6,4 @@ export { loginController } from "./auth-controllers/login-controller";
 // carros
 export { privateCreateCarController } from "./car-controllers/private-create-controller";
 export { publicGetCarController } from "./car-controllers/public-get-controller";
+export { privateUpdateCarController } from "@src/controllers/car-controllers/private-update-controller";

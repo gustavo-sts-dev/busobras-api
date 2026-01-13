@@ -19,11 +19,23 @@ import swagger from "@fastify/swagger";
 import swaggerUi from "@fastify/swagger-ui";
 import cookie from "@fastify/cookie";
 
+const allowedOrigins = env_vars.ORIGINS.split(",").map((o) => o.trim());
+
 fastify.register(cors, {
-  origin: "*",
+  origin: (origin, callback) => {
+    if (
+      (env_vars.NODE_ENV == "development" && !origin) ||
+      (origin && allowedOrigins.includes(origin)) ||
+      allowedOrigins.includes("*")
+    ) {
+      callback(null, true);
+    } else {
+      callback(new Error("Negado pelo cors."), false);
+    }
+  },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-  allowedHeaders: ["Content-Type"],
+  allowedHeaders: ["Content-Type", "Accept"],
   exposedHeaders: ["X-Response-Time", "X-Total-Count"],
 });
 
@@ -104,8 +116,8 @@ fastify.register(routes);
 
 fastify.get("/health", (req, rep) => {
   rep.status(200).send({
-    status: "Ok!"
-  })
-})
+    status: "Ok!",
+  });
+});
 
 export default fastify;
